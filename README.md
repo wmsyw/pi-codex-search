@@ -15,56 +15,79 @@
 
 ## 安装
 
-本项目没有在文档中假定某个已发布版本或固定仓库 URL。以下命令使用占位符，执行时请替换为你实际可用的 npm 包名、Git source 或 checkout 路径；安装后重启宿主或按宿主方式重新加载 extensions。
+仓库地址：<https://github.com/wmsyw/pi-codex-search>
 
-`package.json` 中的 extension manifest 同时声明了 `pi.extensions` 和 `omp.extensions`，因此同一份包可由 Pi 与 OMP 加载。
+`package.json` 同时声明了 `pi.extensions` 和 `omp.extensions`，因此 Pi 与 OMP 都可以直接从 GitHub 安装；宿主会克隆仓库、安装运行时依赖并加载 `src/index.ts`。
+
+> 插件以当前用户权限执行代码。安装前请先审查仓库内容。
 
 ### Pi
 
-Pi 的持久化 extension 目录为 `~/.pi/agent/extensions/`。从 npm 包解压到该目录：
+直接从 GitHub 安装：
 
 ```sh
-mkdir -p ~/.pi/agent/extensions/pi-codex-search
-npm pack <npm-package-name>
-tar -xzf <npm-package-tarball>.tgz --strip-components=1 \
-  -C ~/.pi/agent/extensions/pi-codex-search
-cd ~/.pi/agent/extensions/pi-codex-search
-bun install --production
+pi install https://github.com/wmsyw/pi-codex-search
 ```
 
-从 Git checkout 安装到同一持久化目录：
+也可以使用 Pi 的 Git source 写法：
 
 ```sh
-git clone <repository-url> ~/.pi/agent/extensions/pi-codex-search
-cd ~/.pi/agent/extensions/pi-codex-search
-bun install --production
+pi install git:github.com/wmsyw/pi-codex-search
 ```
 
-本地源码开发可使用 symlink；本地源码目录必须先安装开发依赖：
+只在当前运行中临时加载，不写入 packages 配置：
 
 ```sh
-mkdir -p ~/.pi/agent/extensions
-ln -s "$PWD" ~/.pi/agent/extensions/pi-codex-search
-bun install
-pi -e ./src/index.ts
+pi -e https://github.com/wmsyw/pi-codex-search
+```
+
+更新或卸载：
+
+```sh
+pi update --extensions
+pi remove git:github.com/wmsyw/pi-codex-search
 ```
 
 ### OMP
 
-使用 OMP 已确认的 plugin CLI 路由安装 npm 包或 Git source：
+直接从 GitHub 安装：
 
 ```sh
-omp plugin install <npm-package-or-git-source>
+omp plugin install https://github.com/wmsyw/pi-codex-search
 ```
 
-从本地 checkout 开发时，在源码目录执行：
+OMP 也支持 GitHub shorthand：
 
 ```sh
+omp plugin install github:wmsyw/pi-codex-search
+```
+
+更新时重新执行安装命令；卸载时使用 package name：
+
+```sh
+omp plugin install https://github.com/wmsyw/pi-codex-search
+omp plugin uninstall pi-codex-search
+```
+
+### 本地开发
+
+```sh
+git clone https://github.com/wmsyw/pi-codex-search
+cd pi-codex-search
 bun install
+```
+
+Pi 临时加载：
+
+```sh
+pi -e ./src/index.ts
+```
+
+OMP 链接本地 package：
+
+```sh
 omp plugin link "$PWD"
 ```
-
-这两种 OMP 命令会使用包中声明的 `omp.extensions` manifest；不需要手动复制到未确认的目录。
 
 ## 模型配置示例
 
